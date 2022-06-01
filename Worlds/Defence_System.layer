@@ -1,0 +1,61 @@
+SCR_AIWorld : "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et" {
+ components {
+  NavmeshWorldComponent "{5584F30E67F617AD}" {
+   NavmeshSettings NavmeshWorld "{50FC63BEBE3973C5}" {
+    NavmeshFile "{A07353FE17EB2C49}worlds/MP/Navmeshes/CTI_Campaign_Eden.nmn"
+   }
+  }
+ }
+ coords 0 0 0
+}
+SCR_BaseGameMode GameMode_Base1 : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
+ components {
+  SCR_DefenceLootComponent "{597B0EE181B3DD62}" {
+   respawnTriggerEntityName "TestTrigger"
+   gameAreaRadius 20
+   spawnHeightOffset 0
+   itemsConfigs {
+    "{B901923EAEC7E104}Configs/Arsenal/ArsenalConfig_BLUFOR.conf" "{E2AFCD446759CC8C}Configs/Arsenal/ArsenalConfig_INDFOR.conf" "{3308AFB8143AD36E}Configs/Arsenal/ArsenalConfig_OPFOR.conf"
+   }
+  }
+  SCR_DefenceSpawnerComponent "{597AF022130C2C2D}" {
+   m_iForcedFaction 0
+   respawnTriggerEntityName "TestTrigger"
+  }
+ }
+}
+SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
+ Factions {
+  SCR_Faction "{56B2B46E9AF80999}" {
+   m_bIsPlayable 0
+  }
+ }
+}
+SCR_AIWaypoint AIWP_Attack {
+ coords 4763.591 163.824 7099.645
+}
+$grp SCR_BaseTriggerEntity {
+ DefencePoint {
+  coords 4762.815 163.757 7099.816
+  TriggerShapeType Sphere
+  SphereRadius 15
+  DrawShape 1
+  TriggerActivationType "All changes"
+ }
+ TestTrigger {
+  coords 2142.289 15.813 7506.578
+  TriggerShapeType Sphere
+  SphereRadius 1
+  DrawShape 1
+ }
+}
+SCR_DestructibleBuildingEntity : "{2F830B9B3A7D4855}Prefabs/Structures/Commercial/Shops/ShopHouse_E_2I01t_foodstore.et" {
+ coords 2138.002 1.489 7518.586
+}
+GenericEntity : "{3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et" {
+ coords 4772 164.456 7101
+}
+SCR_SpawnPoint : "{5A2220DD0C16958B}Prefabs/MP/Spawning/SpawnPoint_US.et" {
+}
+SCR_LoadoutManager : "{97EF4C1A41F63DDB}Prefabs/MP/Managers/Loadouts/LoadoutManager_USxUSSR.et" {
+}

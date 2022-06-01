@@ -1,0 +1,8 @@
+GameProject {
+ ID "Defence"
+ GUID "597AF020270ED700"
+ TITLE "Defence"
+ Dependencies {
+  "58D0FB3206B6F859"
+ }
+}
