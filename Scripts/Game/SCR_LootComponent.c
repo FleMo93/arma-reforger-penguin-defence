@@ -151,8 +151,8 @@ class SCR_DefenceLootComponent : ScriptGameComponent
 	[Attribute("2", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: "")]
 	protected float spawnHeightOffset;
 
-	[Attribute("2", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: "")]
-	protected int spawnPointsPerFloor;
+	[Attribute("0.1", uiwidget: UIWidgets.Slider, params: "0.01, 1.0, 0.01", category: "Loot Points", desc: "")]
+	protected float chanceOfSpawnPerPoint;
 	
 	[Attribute("2", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: "")]
 	protected float heightClusterRange;
@@ -166,6 +166,7 @@ class SCR_DefenceLootComponent : ScriptGameComponent
 	private BaseWorld world;
 	private ArmaReforgerScripted game;
 	protected ref array<IEntity> spawnedEntities = {};
+	private ref RandomGenerator randomGenerator;
 	
 	override void OnPostInit(IEntity owner)
 	{
@@ -186,6 +187,9 @@ class SCR_DefenceLootComponent : ScriptGameComponent
 
 		LoadItems();
 		GenerateSpawnPoints();
+		
+		randomGenerator = new RandomGenerator();
+		randomGenerator.SetSeed(Math.RandomInt(0, 100));
 		SpawnLoot();
 	}
 	
@@ -256,13 +260,16 @@ class SCR_DefenceLootComponent : ScriptGameComponent
 		{
 			foreach(vector spawnPoint : lootBuilding.spawnPoints)
 			{
+				if(randomGenerator.RandFloat01() > chanceOfSpawnPerPoint)
+					continue;
+
 				int index = Math.RandomInt(0, items.Count() - 1);
 				SCR_ArsenalItem item = items[index];
 				EntitySpawnParams spawnParams = EntitySpawnParams();
 				spawnParams.TransformMode = ETransformMode.WORLD;
 				spawnParams.Transform = {
 					Vector(1, 0, 0),
-					Vector(0,1, 0),
+					Vector(0, 1, 0),
 					Vector(0, 0, 1),
 					Vector(spawnPoint[0], spawnPoint[1] /*+ spawnHeightOffset*/, spawnPoint[2])
 				};
