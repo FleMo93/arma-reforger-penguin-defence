@@ -4,6 +4,18 @@ class SCR_DefenceLootComponentClass: ScriptGameComponentClass
 {
 };
 
+class FloatCluster
+{
+	float start, end;
+	ref array<float> entries = {};
+
+	void FloatCluster(float clusterStart, float clusterEnd)
+	{
+		start = clusterStart;
+		end = clusterEnd;
+	}
+}
+
 class LootBuilding
 {
 	ref array<ref vector> spawnPoints = {};
@@ -14,15 +26,18 @@ class LootBuilding
 	private BaseWorld _world;
 	private vector _mins, _maxs;
 	private vector transformationBuilding[4];
+	private float _heightClusterRange;
 	
-	void LootBuilding(BaseWorld world, IEntity building)
+	void LootBuilding(BaseWorld world, IEntity building, float heightClusterRange)
 	{
 		_building = building;
 		_world = world;
 		_building.GetBounds(_mins, _maxs);
 		_building.GetWorldTransform(transformationBuilding);
+		_heightClusterRange = heightClusterRange;
 
 		FillLootHeights();
+		ClusterHeights();
 		CalculateSpawnPoints();
 	}
 	
@@ -44,6 +59,40 @@ class LootBuilding
 		if(heights.Find(height) == -1)
 			heights.Insert(height);
 		return true;
+	}
+	
+	private FloatCluster FindCluster(array<ref FloatCluster> clusters, float value)
+	{
+		foreach(FloatCluster cluster : clusters)
+		{
+			if(cluster.start <= value && cluster.end >= value)
+				return cluster;
+		}
+		
+		return null;
+	}
+	
+	protected void ClusterHeights() 
+	{
+		array<ref FloatCluster> clusters = {};
+		heights.Sort();
+
+		foreach(float height : heights)
+		{
+			FloatCluster cluster = FindCluster(clusters, height);
+			if(!cluster)
+			{
+				cluster = new FloatCluster(height, height + _heightClusterRange);
+				clusters.Insert(cluster);
+			}
+		}
+		
+		heights.Clear();
+		foreach(FloatCluster cluster : clusters)
+		{
+			heights.Insert(cluster.start);
+		}
+		delete clusters;
 	}
 	
 	protected void FillLootHeights()
@@ -104,6 +153,9 @@ class SCR_DefenceLootComponent : ScriptGameComponent
 
 	[Attribute("2", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: "")]
 	protected int spawnPointsPerFloor;
+	
+	[Attribute("2", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: "")]
+	protected float heightClusterRange;
 	
 	[Attribute(uiwidget: UIWidgets.EditBox, category: "Loot Points")]
 	protected ref array<ref ResourceName> itemsConfigs;
@@ -181,7 +233,7 @@ class SCR_DefenceLootComponent : ScriptGameComponent
 	
 	protected bool BuildingQueryEntitiesCallbackAdd(IEntity e)
 	{
-		LootBuilding lootBuilding = new LootBuilding(world, e);
+		LootBuilding lootBuilding = new LootBuilding(world, e, heightClusterRange);
 		if(lootBuilding.spawnPoints.Count() > 0)
 			lootBuildings.Insert(lootBuilding);
 		
@@ -212,7 +264,7 @@ class SCR_DefenceLootComponent : ScriptGameComponent
 					Vector(1, 0, 0),
 					Vector(0,1, 0),
 					Vector(0, 0, 1),
-					Vector(spawnPoint[0], spawnPoint[1] + spawnHeightOffset, spawnPoint[2])
+					Vector(spawnPoint[0], spawnPoint[1] /*+ spawnHeightOffset*/, spawnPoint[2])
 				};
 				Resource itemResource = item.GetItemResource();
 				IEntity entity = game.SpawnEntityPrefab(itemResource, world, spawnParams);
