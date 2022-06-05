@@ -4,10 +4,10 @@ class SCR_LootGroup
 	[Attribute("", uiwidget: UIWidgets.EditBox, desc: "Name of the group (optional)")]
 	protected string name;
 	
-	[Attribute("1", uiwidget: UIWidgets.Slider)]
+	[Attribute("1000", params: "0, 1000000, 1", uiwidget: UIWidgets.Slider)]
 	protected int weight;
 	
-	[Attribute("1", uiwidget: UIWidgets.Slider,params: "1, 5, 1", desc: "Amount of the same item spawned")]
+	[Attribute("1", uiwidget: UIWidgets.Slider, params: "1, 5, 1", desc: "Amount of the same item spawned")]
 	protected int batchSize;
 
 	[Attribute("", UIWidgets.Object)]
@@ -17,8 +17,9 @@ class SCR_LootGroup
 	
 	void SCR_LootGroup()
 	{
+		totalWeight = 0;
 		foreach(SCR_LootItem lootItem : lootItems)
-			totalWeight = totalWeight + lootItem.GetWeight();
+			totalWeight += lootItem.GetWeight();
 	}
 	
 	string GetName()
@@ -29,6 +30,11 @@ class SCR_LootGroup
 	int GetWeight()
 	{
 		return weight;
+	}
+	
+	int GetBatchSize()
+	{
+		return batchSize;
 	}
 	
 	void GetLootItems(array<ref SCR_LootItem> items)
@@ -46,7 +52,22 @@ class SCR_LootGroup
 		
 		foreach(SCR_LootItem item : lootItems)
 		{
-			currentWeight = currentWeight + item.GetWeight();
+			currentWeight += item.GetWeight();
+			if(pickedWeight <= currentWeight)
+				return item;
+		}
+		
+		return null;
+	}
+	
+	SCR_LootItem GetRandomLootItem(RandomGenerator randomGenerator)
+	{
+		float pickedWeight = randomGenerator.RandFloat01() * lootItems.Count();
+		int currentWeight = 0;
+		
+		foreach(SCR_LootItem item : lootItems)
+		{
+			currentWeight += 1;
 			if(pickedWeight <= currentWeight)
 				return item;
 		}

@@ -8,6 +8,7 @@ class SCR_LootListConfig
 	
 	void SCR_LootListConfig()
 	{
+		totalWeight = 0;
 		foreach(SCR_LootGroup lootGroup : lootGroups)
 			totalWeight = totalWeight + lootGroup.GetWeight();
 	}
@@ -28,6 +29,21 @@ class SCR_LootListConfig
 		foreach(SCR_LootGroup group : lootGroups)
 		{
 			currentWeight = currentWeight + group.GetWeight();
+			if(pickedWeight <= currentWeight)
+				return group;
+		}
+		
+		return null;
+	}
+	
+	SCR_LootGroup GetRandomLootGroup(RandomGenerator randomGenerator)
+	{
+		float pickedWeight = randomGenerator.RandFloat01() * lootGroups.Count();
+		int currentWeight = 0;
+		
+		foreach(SCR_LootGroup group : lootGroups)
+		{
+			currentWeight += 1;
 			if(pickedWeight <= currentWeight)
 				return group;
 		}

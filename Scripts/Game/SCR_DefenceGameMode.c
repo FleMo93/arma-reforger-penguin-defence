@@ -33,13 +33,6 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 		return Event_OnWaveEnd;
 	}
 	
-	override void EOnInit(IEntity owner)
-	{
-		super.EOnInit(owner);
-		
-		//lootManager = new LootManager(defencePointTransform[3], gameAreaRadius, spawnHeightOffset, chanceOfSpawnPerPoint, heightClusterRange, lootListConfig);
-	}
-	
 	override event void OnWorldPostProcess(World world)
 	{
 		super.OnWorldPostProcess(world);

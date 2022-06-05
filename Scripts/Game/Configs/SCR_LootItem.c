@@ -4,7 +4,7 @@ class SCR_LootItem
 	[Attribute(params: "et")]
 	protected ResourceName itemResourceName;
 	
-	[Attribute("1", uiwidget: UIWidgets.Slider)]
+	[Attribute("1000", params: "0, 1000000, 1", uiwidget: UIWidgets.Slider)]
 	protected int weight;
 	
 	private ref Resource resource;

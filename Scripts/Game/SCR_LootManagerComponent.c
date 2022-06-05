@@ -158,6 +158,9 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 	[Attribute(params: "conf", category: "Loot Points")]
 	protected ResourceName lootListConfig;
 	
+	[Attribute(params: "conf", category: "Loot Points")]
+	protected bool ignoreItemListWeights;
+	
 	protected ref SCR_LootListConfig _lootListConfig;
 	
 	protected BaseGameTriggerEntity defendPointTrigger;
@@ -226,19 +229,61 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 	protected void GenerateSpawnPoints()
 	{	
 		_world.QueryEntitiesBySphere(_center, gameAreaRadius, BuildingQueryEntitiesCallbackAdd, BuildingQueryEntitiesCallbackFilter, EQueryEntitiesFlags.STATIC);
-		Print(string.Format("Found %1 buildings", lootBuildings.Count()), LogLevel.WARNING);
 	}
 	
-	protected SCR_LootItem PickLoot()
+
+	protected void SpawnLootAt(vector position, array<IEntity> newEntities)
 	{
-		SCR_LootGroup lootGroup = _lootListConfig.GetRandomLootGroupByWeight(randomGenerator);
+		EntitySpawnParams spawnParams = EntitySpawnParams();
+		spawnParams.TransformMode = ETransformMode.WORLD;
+		spawnParams.Transform = {
+			Vector(1, 0, 0),
+			Vector(0, 1, 0),
+			Vector(0, 0, 1),
+			Vector(position[0], position[1] /*+ _spawnHeightOffset*/, position[2])
+		};
+				
+		_lootListConfig.GetRandomLootGroupByWeight(randomGenerator);
+
+		SCR_LootGroup lootGroup;
+		if (ignoreItemListWeights)
+			lootGroup = _lootListConfig.GetRandomLootGroup(randomGenerator);
+		else
+			lootGroup = _lootListConfig.GetRandomLootGroupByWeight(randomGenerator);
+
 		if(!lootGroup)
 		{
-			Print(string.Format("No loot group could be found"), LogLevel.ERROR);
-			return null;
+			Print("No loot group could be found", LogLevel.ERROR);
+			return;
 		}
-		SCR_LootItem lootItem = lootGroup.GetRandomLootItemByWeight(randomGenerator);
-		return lootItem;
+
+		SCR_LootItem lootItem;
+		if(ignoreItemListWeights)
+			lootItem = lootGroup.GetRandomLootItem(randomGenerator);
+		else
+			lootItem = lootGroup.GetRandomLootItemByWeight(randomGenerator);
+
+		if(!lootItem)
+		{
+			Print("No loot item could be found", LogLevel.ERROR);
+			return;
+		}
+		
+		for(int i = 0; i < lootGroup.GetBatchSize(); i++)
+		{
+			Resource itemResource = lootItem.GetResource();		
+			IEntity entity = game.SpawnEntityPrefab(itemResource, _world, spawnParams);
+			
+			//leads to strange behaviour, like weapons flying around when stucking in furniture or walls
+			//Physics physics = entity.GetPhysics();
+			//if(physics)
+			//{
+				//physics.Destroy();
+				//physics = Physics.CreateDynamic(entity, 1, -1);
+			//}
+			
+			newEntities.Insert(entity);
+		}
 	}
 	
 	protected void SpawnLoot()
@@ -249,34 +294,11 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 			{
 				if(randomGenerator.RandFloat01() > chanceOfSpawnPerPoint)
 					continue;
-
-				SCR_LootItem lootItem = PickLoot();
-				if(!lootItem)
-				{
-					Print(string.Format("No loot item could be found"), LogLevel.ERROR);
-					return;
-				}
-
-				EntitySpawnParams spawnParams = EntitySpawnParams();
-				spawnParams.TransformMode = ETransformMode.WORLD;
-				spawnParams.Transform = {
-					Vector(1, 0, 0),
-					Vector(0, 1, 0),
-					Vector(0, 0, 1),
-					Vector(spawnPoint[0], spawnPoint[1] /*+ _spawnHeightOffset*/, spawnPoint[2])
-				};
-
-				Resource itemResource = lootItem.GetResource();
-				IEntity entity = game.SpawnEntityPrefab(itemResource, _world, spawnParams);
-				spawnedEntities.Insert(entity);
 				
-				//leads to strange behaviour, like weapons flying around when stucking in furniture or walls
-				//Physics physics = entity.GetPhysics();
-				//if(physics)
-				//{
-					//physics.Destroy();
-					//physics = Physics.CreateDynamic(entity, 1, -1);
-				//}
+				array<IEntity> newEntities = {};
+				SpawnLootAt(spawnPoint, newEntities);
+				foreach(IEntity newEntity : newEntities)
+					spawnedEntities.Insert(newEntity);
 			}
 		}
 	}
