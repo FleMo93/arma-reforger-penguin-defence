@@ -14,17 +14,14 @@ class SCR_DefenceSpawnerComponent : SCR_RespawnHandlerComponent
 	[Attribute("-1", uiwidget: UIWidgets.EditComboBox, category: "Respawn", desc: "Faction index to spawn player(s) with. Only applied when greater or equal to 0.")]
 	protected int m_iForcedFaction;
 	
-	[Attribute("-1", uiwidget: UIWidgets.EditComboBox, category: "Respawn", desc: "Loadout index to spawn player(s) with. Only applied when greater or equal to 0.")]
-	protected int m_iForcedLoadout;
-	
 	[Attribute("", uiwidget: UIWidgets.EditComboBox, category: "Respawn Points", desc: "Trigger where players can spawn in.")]
 	protected string respawnTriggerEntityName;
 
 	protected BaseGameTriggerEntity defendPointTrigger;
 	
-	override void EOnInit(IEntity owner)
+	override void OnWorldPostProcess(World world)
 	{
-		IEntity respawnTriggerEntity = GetGame().FindEntity(respawnTriggerEntityName);
+		IEntity respawnTriggerEntity = world.FindEntityByName(respawnTriggerEntityName);;
 		defendPointTrigger = BaseGameTriggerEntity.Cast(respawnTriggerEntity);
 		if (!defendPointTrigger)
 		{
@@ -57,16 +54,7 @@ class SCR_DefenceSpawnerComponent : SCR_RespawnHandlerComponent
 			Print(string.Format("Cannot set faction %1 to player %2! Is faction index valid?", m_iForcedFaction, playerId), LogLevel.ERROR);
 
 		
-		if (m_iForcedLoadout >= 0)
-		{
-			if (SCR_RespawnSystemComponent.GetInstance().CanSetLoadout(playerId, m_iForcedLoadout))
-				SCR_RespawnSystemComponent.GetInstance().DoSetPlayerLoadout(playerId, m_iForcedLoadout);
-			else
-				Print(string.Format("Cannot set loadout %1 to player %2! Is loadout index valid?", m_iForcedLoadout, playerId), LogLevel.ERROR);
-		}
-		else
-			RandomizePlayerLoadout(playerId);
-		
+		RandomizePlayerLoadout(playerId);
 		RandomizePlayerSpawnPoint(playerId);
 	}
 	
@@ -157,30 +145,6 @@ class SCR_DefenceSpawnerComponent : SCR_RespawnHandlerComponent
 				}
 
 				return factionEnums;
-			}
-		}
-		
-		if (varName == "m_iForcedLoadout")
-		{
-			SCR_LoadoutManager loadoutManager = GetGame().GetLoadoutManager();
-			if (loadoutManager)
-			{
-				ref array<ref ParamEnum> loadoutEnums = new array<ref ParamEnum>();
-				loadoutEnums.Insert(new ParamEnum("Disabled", "-1"));
-				
-				array<SCR_BasePlayerLoadout> loadouts = {};
-				for (int i = 0, count = loadoutManager.GetLoadoutCount(); i < count; i++)
-					loadouts.Insert(loadoutManager.GetLoadoutByIndex(i));
-				
-				SCR_BasePlayerLoadout loadout;
-				for (int i = 0, count = loadouts.Count(); i < count; i++)
-				{
-					loadout = loadouts[i];
-					int loadoutIndex = loadoutManager.GetLoadoutIndex(loadout);
-					loadoutEnums.Insert(new ParamEnum(loadout.GetLoadoutName(), loadoutIndex.ToString()));
-				}
-
-				return loadoutEnums;
 			}
 		}
 

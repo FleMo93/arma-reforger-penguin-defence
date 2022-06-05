@@ -8,22 +8,6 @@ SCR_AIWorld : "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et" {
  }
  coords 0 0 0
 }
-SCR_BaseGameMode GameMode_Base1 : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
- components {
-  SCR_DefenceLootComponent "{597B0EE181B3DD62}" {
-   respawnTriggerEntityName "TestTrigger"
-   gameAreaRadius 20
-   spawnHeightOffset 0
-   itemsConfigs {
-    "{B901923EAEC7E104}Configs/Arsenal/ArsenalConfig_BLUFOR.conf" "{E2AFCD446759CC8C}Configs/Arsenal/ArsenalConfig_INDFOR.conf" "{3308AFB8143AD36E}Configs/Arsenal/ArsenalConfig_OPFOR.conf"
-   }
-  }
-  SCR_DefenceSpawnerComponent "{597AF022130C2C2D}" {
-   m_iForcedFaction 0
-   respawnTriggerEntityName "TestTrigger"
-  }
- }
-}
 SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
  Factions {
   SCR_Faction "{56B2B46E9AF80999}" {
@@ -31,16 +15,52 @@ SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Manag
   }
  }
 }
+SCR_DefenceGameMode SCR_DefenceGameMode : "{5ECEE9197618A3B3}Prefabs/SCR_DefenceGameMode.et" {
+ coords 4760.901 163.144 7111.816
+}
 SCR_AIWaypoint AIWP_Attack {
  coords 4763.591 163.824 7099.645
 }
 $grp SCR_BaseTriggerEntity {
  DefencePoint {
   coords 4762.815 163.757 7099.816
+  userScript "	protected int m_iCount;"\
+  "	protected SCR_DefenceGameMode gameMode;"\
+  " "\
+  "    // Set up the filter"\
+  "    override bool ScriptedEntityFilterForQuery(IEntity ent) {"\
+  "        SCR_ChimeraCharacter cc = SCR_ChimeraCharacter.Cast(ent);"\
+  "        if (!cc) return false; // If the entity is not a person, filter it out"\
+  "        if (cc.GetFactionKey() != \"USSR\") return false; // If the entity does not have the Faction key of USSR, filter it out"\
+  "        if (!IsAlive(cc)) return false; // If the entity is dead, filter it out"\
+  "        return true; // Otherwise, include it!"\
+  "    }"\
+  " "\
+  "    override void OnActivate(IEntity ent)"\
+  "    {"\
+  "        ++m_iCount; // When activated (i.e. when an alive USSR soldier entity enters), add 1 to the number m_iCount"\
+  "    }"\
+  " "\
+  "    override void OnDeactivate(IEntity ent)"\
+  "    {        "\
+  "        --m_iCount; // When deactivated (i.e. if the soldier leaves or dies) take away 1 to the number m_iCount"\
+  "        if (m_iCount <= 0) // if m_iCount is now at 0 (or less than 0), run the OnEmptied function below."\
+  "            OnEmptied();"\
+  "    }"\
+  " "\
+  "    void OnEmptied()"\
+  "    {"\
+  "        //GameMode_Base1_Class gameMode = GameMode_Base1_Class.Cast(GetGame().GetGameMode()); // Get the game mode for the end script"\
+  "		//gameMode.OnEnemyEnteredTrigger();"\
+  "        //Faction faction = GetGame().GetFactionManager().GetFactionByKey(\"US\"); // Get the winning faction Key"\
+  "        //int usIndex = GetGame().GetFactionManager().GetFactionIndex(faction); // Get the winning faction key's index"\
+  "        //gameMode.EndGameMode(SCR_GameModeEndData.CreateSimple(SCR_GameModeEndData.ENDREASON_EDITOR_FACTION_VICTORY, -1, usIndex)); // End the mission!"\
+  "    }"
   TriggerShapeType Sphere
   SphereRadius 15
-  DrawShape 1
   TriggerActivationType "All changes"
+  PeriodicQueries 1
+  UpdatePeriod 0.5
  }
  TestTrigger {
   coords 2142.289 15.813 7506.578
@@ -52,10 +72,16 @@ $grp SCR_BaseTriggerEntity {
 SCR_DestructibleBuildingEntity : "{2F830B9B3A7D4855}Prefabs/Structures/Commercial/Shops/ShopHouse_E_2I01t_foodstore.et" {
  coords 2138.002 1.489 7518.586
 }
-GenericEntity : "{3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et" {
- coords 4772 164.456 7101
-}
 SCR_SpawnPoint : "{5A2220DD0C16958B}Prefabs/MP/Spawning/SpawnPoint_US.et" {
 }
-SCR_LoadoutManager : "{97EF4C1A41F63DDB}Prefabs/MP/Managers/Loadouts/LoadoutManager_USxUSSR.et" {
+SCR_LoadoutManager : "{AA4E7419A1FF65B0}Prefabs/MP/Managers/Loadouts/LoadoutManager_Base.et" {
+ coords 4777.343 164.321 7097.173
+ m_aPlayerLoadouts {
+  SCR_FactionPlayerLoadout "{5986B7FBCF807939}" {
+   m_sLoadoutName "Default"
+   m_sLoadoutResource "{2F912ED6E399FF47}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Unarmed.et"
+   m_sLoadoutImage "{047ABB4F19374DB4}UI/Textures/EditorPreviews/Characters/BLUFOR/US_Army/Character_US_Unarmed.edds"
+   m_sAffiliatedFaction "US"
+  }
+ }
 }
