@@ -5,6 +5,7 @@ SCR_DefenceGameMode {
   }
   SCR_DefenceLootManagerComponent "{5988A0ACDC7D4642}" {
    lootListConfig "{C1E4AB4A28E79AF8}Configs/Loot.conf"
+   ignoreItemListWeights 1
   }
   SCR_DefenceSpawnerComponent "{5988A0A258661082}" {
    m_iForcedFaction 0
@@ -40,6 +41,8 @@ SCR_DefenceGameMode {
   RplComponent "{5988A0A2E8945F9F}" {
    "Rpl State Override" Static
    Streamable Disabled
+  }
+  SCR_DefenceEnemySpawnerComponent "{598B0937AE3858AB}" {
   }
  }
  coords 4760.901 163.144 7111.817

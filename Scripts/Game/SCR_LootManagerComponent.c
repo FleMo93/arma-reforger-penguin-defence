@@ -182,6 +182,7 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 	
 	override void OnWorldPostProcess(World world)
 	{
+		super.OnWorldPostProcess(world);
 		if(!Replication.IsServer())
 			return;
 

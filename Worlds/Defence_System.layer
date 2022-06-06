@@ -17,102 +17,55 @@ SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Manag
 }
 SCR_DefenceGameMode SCR_DefenceGameMode : "{5ECEE9197618A3B3}Prefabs/SCR_DefenceGameMode.et" {
  components {
-  SCR_CallsignManagerComponent "{5988A0A2CBF7C746}" {
-  }
-  SCR_DefenceLootManagerComponent "{5988A0ACDC7D4642}" {
-   ignoreItemListWeights 1
-  }
-  SCR_DefenceSpawnerComponent "{5988A0A258661082}" {
-   m_iForcedFaction 0
-   respawnTriggerEntityName "DefencePoint"
-  }
-  SCR_DestructionManagerComponent "{5988A0A24DD2D1A6}" {
-  }
-  SCR_GameOverScreenManagerComponent "{5988A0A247A83518}" {
-   m_GameOverScreenConfig SCR_GameOverScreenConfig "{5988A0A37C852741}" {
-   }
-  }
-  SCR_GroupsManagerComponent "{5988A0A2BD3EE5CB}" {
-   m_sDefaultGroupPrefab "{8B4D49A9F324E7D5}Prefabs/Groups/PlayableGroup.et"
-  }
-  SCR_HintManagerComponent "{5988A0A2B3C4E52E}" {
-  }
-  SCR_NametagConfigComponent "{5988A0A2B6473CB2}" {
-  }
-  SCR_NotificationSenderComponent "{5988A0A2AD8AF29A}" {
-  }
-  SCR_PlayerProfileManagerComponent "{5988A0A2A378D744}" {
-  }
-  SCR_PlayersRestrictionZoneManagerComponent "{5988A0A292241885}" {
-  }
-  SCR_PossessingManagerComponent "{5988A0A2884FD855}" {
-  }
-  SCR_RespawnSystemComponent "{5988A0A2F94D4327}" {
-  }
-  SCR_SaveLoadComponent "{5988A0A2FFBF0212}" {
-  }
-  SCR_VotingManagerComponent "{5988A0A2F2D65867}" {
-  }
-  RplComponent "{5988A0A2E8945F9F}" {
-   "Rpl State Override" Static
-   Streamable Disabled
+  SCR_DefenceEnemySpawnerComponent "{598B0937AE3858AB}" {
+   waveTypesConfig "{94B01EF4FABE9FA2}Configs/WaveTypes.conf"
+   hostileCharactersConfig "{1FA3804372929692}Configs/HostileCharacters.conf"
+   waypointResourceName "{1B0E3436C30FA211}Prefabs/AI/Waypoints/AIWaypoint_Attack.et"
   }
  }
  coords 4760.901 163.144 7111.816
+ defenceRadius 5
+ timeBetweenWaves 1000
 }
-SCR_AIWaypoint AIWP_Attack {
- coords 4763.591 163.824 7099.645
-}
-$grp SCR_BaseTriggerEntity {
- DefencePoint {
-  coords 4762.815 163.757 7099.816
-  userScript "	protected int m_iCount;"\
-  "	protected SCR_DefenceGameMode gameMode;"\
-  " "\
-  "    // Set up the filter"\
-  "    override bool ScriptedEntityFilterForQuery(IEntity ent) {"\
-  "        SCR_ChimeraCharacter cc = SCR_ChimeraCharacter.Cast(ent);"\
-  "        if (!cc) return false; // If the entity is not a person, filter it out"\
-  "        if (cc.GetFactionKey() != \"USSR\") return false; // If the entity does not have the Faction key of USSR, filter it out"\
-  "        if (!IsAlive(cc)) return false; // If the entity is dead, filter it out"\
-  "        return true; // Otherwise, include it!"\
-  "    }"\
-  " "\
-  "    override void OnActivate(IEntity ent)"\
-  "    {"\
-  "        ++m_iCount; // When activated (i.e. when an alive USSR soldier entity enters), add 1 to the number m_iCount"\
-  "    }"\
-  " "\
-  "    override void OnDeactivate(IEntity ent)"\
-  "    {        "\
-  "        --m_iCount; // When deactivated (i.e. if the soldier leaves or dies) take away 1 to the number m_iCount"\
-  "        if (m_iCount <= 0) // if m_iCount is now at 0 (or less than 0), run the OnEmptied function below."\
-  "            OnEmptied();"\
-  "    }"\
-  " "\
-  "    void OnEmptied()"\
-  "    {"\
-  "        //GameMode_Base1_Class gameMode = GameMode_Base1_Class.Cast(GetGame().GetGameMode()); // Get the game mode for the end script"\
-  "		//gameMode.OnEnemyEnteredTrigger();"\
-  "        //Faction faction = GetGame().GetFactionManager().GetFactionByKey(\"US\"); // Get the winning faction Key"\
-  "        //int usIndex = GetGame().GetFactionManager().GetFactionIndex(faction); // Get the winning faction key's index"\
-  "        //gameMode.EndGameMode(SCR_GameModeEndData.CreateSimple(SCR_GameModeEndData.ENDREASON_EDITOR_FACTION_VICTORY, -1, usIndex)); // End the mission!"\
-  "    }"
-  TriggerShapeType Sphere
-  SphereRadius 15
-  TriggerActivationType "All changes"
-  PeriodicQueries 1
-  UpdatePeriod 0.5
- }
- TestTrigger {
-  coords 2142.289 15.813 7506.578
-  TriggerShapeType Sphere
-  SphereRadius 1
-  DrawShape 1
- }
-}
-SCR_DestructibleBuildingEntity : "{2F830B9B3A7D4855}Prefabs/Structures/Commercial/Shops/ShopHouse_E_2I01t_foodstore.et" {
- coords 2138.002 1.489 7518.586
+SCR_BaseTriggerEntity DefencePoint {
+ coords 4762.814 163.756 7099.815
+ userScript "	protected int m_iCount;"\
+ "	protected SCR_DefenceGameMode gameMode;"\
+ " "\
+ "    // Set up the filter"\
+ "    override bool ScriptedEntityFilterForQuery(IEntity ent) {"\
+ "        SCR_ChimeraCharacter cc = SCR_ChimeraCharacter.Cast(ent);"\
+ "        if (!cc) return false; // If the entity is not a person, filter it out"\
+ "        if (cc.GetFactionKey() != \"USSR\") return false; // If the entity does not have the Faction key of USSR, filter it out"\
+ "        if (!IsAlive(cc)) return false; // If the entity is dead, filter it out"\
+ "        return true; // Otherwise, include it!"\
+ "    }"\
+ " "\
+ "    override void OnActivate(IEntity ent)"\
+ "    {"\
+ "        ++m_iCount; // When activated (i.e. when an alive USSR soldier entity enters), add 1 to the number m_iCount"\
+ "    }"\
+ " "\
+ "    override void OnDeactivate(IEntity ent)"\
+ "    {        "\
+ "        --m_iCount; // When deactivated (i.e. if the soldier leaves or dies) take away 1 to the number m_iCount"\
+ "        if (m_iCount <= 0) // if m_iCount is now at 0 (or less than 0), run the OnEmptied function below."\
+ "            OnEmptied();"\
+ "    }"\
+ " "\
+ "    void OnEmptied()"\
+ "    {"\
+ "        //GameMode_Base1_Class gameMode = GameMode_Base1_Class.Cast(GetGame().GetGameMode()); // Get the game mode for the end script"\
+ "		//gameMode.OnEnemyEnteredTrigger();"\
+ "        //Faction faction = GetGame().GetFactionManager().GetFactionByKey(\"US\"); // Get the winning faction Key"\
+ "        //int usIndex = GetGame().GetFactionManager().GetFactionIndex(faction); // Get the winning faction key's index"\
+ "        //gameMode.EndGameMode(SCR_GameModeEndData.CreateSimple(SCR_GameModeEndData.ENDREASON_EDITOR_FACTION_VICTORY, -1, usIndex)); // End the mission!"\
+ "    }"
+ TriggerShapeType Sphere
+ SphereRadius 15
+ TriggerActivationType "All changes"
+ PeriodicQueries 1
+ UpdatePeriod 0.5
 }
 SCR_SpawnPoint : "{5A2220DD0C16958B}Prefabs/MP/Spawning/SpawnPoint_US.et" {
 }

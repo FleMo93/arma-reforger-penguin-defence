@@ -8,6 +8,10 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 {	
 	[Attribute("100", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: "")]
 	protected float gameAreaRadius;
+	[Attribute("10", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: "")]
+	protected float defenceRadius;
+	[Attribute("60000", uiwidget: UIWidgets.EditBox, category: "Waves", desc: "")]
+	protected float timeBetweenWaves;
 
 	protected ref ScriptInvoker Event_OnDefenceZoneChanged = new ScriptInvoker();
 	protected ref ScriptInvoker Event_OnWavePrepare = new ScriptInvoker();
@@ -50,8 +54,24 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 	override void OnGameStart()
 	{
 		super.OnGameStart();
-		Event_OnDefenceZoneChanged.Invoke(defenceZoneCenter, gameAreaRadius);
+		OnDefenceZoneChanged();
+	}
+
+	protected void OnDefenceZoneChanged()
+	{
+		Event_OnDefenceZoneChanged.Invoke(defenceZoneCenter, gameAreaRadius, defenceRadius);
+		OnWavePrepare();
+		GetGame().GetCallqueue().CallLater(OnWaveStart, timeBetweenWaves);
+	}
+
+	protected void OnWavePrepare()
+	{
 		Event_OnWavePrepare.Invoke();
+	}
+
+	protected void OnWaveStart()
+	{
+		Event_OnWaveStart.Invoke();
 	}
 	
 	void OnEnemyEnteredTrigger()
