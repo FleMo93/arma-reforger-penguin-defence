@@ -3,29 +3,28 @@ SCR_AIWorld : "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et" {
   NavmeshWorldComponent "{5584F30E67F617AD}" {
    NavmeshSettings NavmeshWorld "{50FC63BEBE3973C5}" {
     NavmeshFile "{A07353FE17EB2C49}worlds/MP/Navmeshes/CTI_Campaign_Eden.nmn"
+    UsePathSmoothing 1
    }
   }
  }
  coords 0 0 0
 }
+PerceptionManager PerceptionManager1 : "{028DAEAD63E056BE}Prefabs/World/Game/PerceptionManager.et" {
+}
 SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
  Factions {
   SCR_Faction "{56B2B46E9AF80999}" {
-   m_bIsPlayable 0
   }
  }
+ m_bCanChangeFactionsPlayable 0
 }
 SCR_DefenceGameMode SCR_DefenceGameMode : "{5ECEE9197618A3B3}Prefabs/SCR_DefenceGameMode.et" {
  components {
   SCR_DefenceEnemySpawnerComponent "{598B0937AE3858AB}" {
-   waveTypesConfig "{94B01EF4FABE9FA2}Configs/WaveTypes.conf"
-   hostileCharactersConfig "{1FA3804372929692}Configs/HostileCharacters.conf"
-   waypointResourceName "{1B0E3436C30FA211}Prefabs/AI/Waypoints/AIWaypoint_Attack.et"
+   spawnDistanceOffset 100
   }
  }
- coords 4760.901 163.144 7111.816
- defenceRadius 5
- timeBetweenWaves 1000
+ coords 0 0 0
 }
 SCR_BaseTriggerEntity DefencePoint {
  coords 4762.814 163.756 7099.815
@@ -67,10 +66,11 @@ SCR_BaseTriggerEntity DefencePoint {
  PeriodicQueries 1
  UpdatePeriod 0.5
 }
+HitRegistrationManager HitRegManager1 : "{0EDA3D48791120DD}Prefabs/MP/HitRegManager.et" {
+}
 SCR_SpawnPoint : "{5A2220DD0C16958B}Prefabs/MP/Spawning/SpawnPoint_US.et" {
 }
 SCR_LoadoutManager : "{AA4E7419A1FF65B0}Prefabs/MP/Managers/Loadouts/LoadoutManager_Base.et" {
- coords 4777.343 164.321 7097.173
  m_aPlayerLoadouts {
   SCR_FactionPlayerLoadout "{5986B7FBCF807939}" {
    m_sLoadoutName "Default"

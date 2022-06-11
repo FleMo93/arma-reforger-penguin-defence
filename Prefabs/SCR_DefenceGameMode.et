@@ -3,6 +3,12 @@ SCR_DefenceGameMode {
  components {
   SCR_CallsignManagerComponent "{5988A0A2CBF7C746}" {
   }
+  SCR_DefenceEnemySpawnerComponent "{598B0937AE3858AB}" {
+   groupWrapperResourceName "{000CD338713F2B5A}Prefabs/AI/Groups/Group_Base.et"
+   waveTypesConfig "{94B01EF4FABE9FA2}Configs/WaveTypes.conf"
+   hostileCharactersConfig "{1FA3804372929692}Configs/HostileCharacters.conf"
+   waypointResourceName "{1B0E3436C30FA211}Prefabs/AI/Waypoints/AIWaypoint_Attack.et"
+  }
   SCR_DefenceLootManagerComponent "{5988A0ACDC7D4642}" {
    lootListConfig "{C1E4AB4A28E79AF8}Configs/Loot.conf"
    ignoreItemListWeights 1
@@ -42,9 +48,9 @@ SCR_DefenceGameMode {
    "Rpl State Override" Static
    Streamable Disabled
   }
-  SCR_DefenceEnemySpawnerComponent "{598B0937AE3858AB}" {
-  }
  }
  coords 4760.901 163.144 7111.817
  Flags 0
+ defenceRadius 5
+ timeBetweenWaves 1000
 }

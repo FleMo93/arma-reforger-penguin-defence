@@ -13,6 +13,7 @@ class SCR_DefenceEnemySpawnerComponentClass: SCR_BaseGameModeComponentClass
 class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 {
 	private SCR_DefenceGameMode gameMode;
+	private FactionManager factionManager;
 	private ArmaReforgerScripted game;
 	private World _world;
 	private PlayerManager playerManager;
@@ -20,7 +21,10 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	private float _gameAreaRadius;
 	private float _defenceRadius;
 	private ref RandomGenerator randomGenerator;
+	private ref Faction hostileAffiliatedFaction;
 	
+	[Attribute("", UIWidgets.ResourceNamePicker, "", "et")]
+	protected ResourceName groupWrapperResourceName;
 	
 	[Attribute(params: "conf")]
 	protected ResourceName waveTypesConfig;
@@ -32,7 +36,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	protected float spawnDistanceOffset;
 	
 	[Attribute("USSR", uiwidget: UIWidgets.EditComboBox)]
-	protected FactionKey hostileAffiliatedFaction;
+	protected FactionKey hostileAffiliatedFactionKey;
 	
 	[Attribute("", UIWidgets.ResourceNamePicker, "", "et")]
 	protected ResourceName waypointResourceName;
@@ -44,6 +48,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	protected ref SCR_HostileCharacters _hostileCharacterConfig;
 	protected AIWaypoint aiWaypoint;
 	protected ref array<vector> spawnPoints = {};
+	protected ref Resource groupWrapperResource;
 
 	override event void OnWorldPostProcess(World world)
 	{
@@ -73,12 +78,17 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 			Print("Missing hostile characters config. May lead to error on start.", LogLevel.WARNING);
 
 		gameMode = SCR_DefenceGameMode.Cast(GetGameMode());
+		if(!gameMode) Print("Could not parse game mode", LogLevel.ERROR);
+
 		game = GetGame();
+		hostileAffiliatedFaction = game.GetFactionManager().GetFactionByKey(hostileAffiliatedFactionKey);
+		
 		_world = world;
 		playerManager = game.GetPlayerManager();
-		if(!gameMode) Print("Could not parse game mode", LogLevel.ERROR);
+		
 		gameMode.GetOnDefenceZoneChanged().Insert(SetDefenceZone);
 		gameMode.GetOnWaveStart().Insert(OnWaveStart);
+		groupWrapperResource = Resource.Load(groupWrapperResourceName);
 		
 		if(waypointResourceName)
 		{
@@ -102,7 +112,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		Print(string.Format("%1 spawn points found", spawnPoints.Count()), LogLevel.NORMAL);
 	}
 	
-	protected SCR_ChimeraCharacter SpawnHostileCharacterAtRandomLocation(SCR_HostileCharacter hostileCharacter)
+	protected SCR_AIGroup SpawnHostileCharacterAtRandomLocation(SCR_HostileCharacter hostileCharacter)
 	{
 		Resource hostileCharacterResource = hostileCharacter.GetResource();	
 		EntitySpawnParams spawnParams = EntitySpawnParams();
@@ -113,6 +123,18 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 			Vector(0, 0, 1),
 			GetRandomSpawnPoint()
 		};
+
+		IEntity entityGroup = game.SpawnEntityPrefab(groupWrapperResource, _world, spawnParams);
+		SCR_AIGroup group =  SCR_AIGroup.Cast(entityGroup);
+		if(!group)
+		{
+			Print(string.Format("Entity of type %1 is no AIGroup", groupWrapperResourceName), LogLevel.ERROR);
+			entityGroup.GetParent().RemoveChild(entityGroup);
+			return null;
+		}
+		
+		
+
 		IEntity entity = game.SpawnEntityPrefab(hostileCharacter.GetResource(), _world, spawnParams);
 		SCR_ChimeraCharacter character = SCR_ChimeraCharacter.Cast(entity);
 		if(!character)
@@ -122,37 +144,40 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 			return null;
 		}
 		
-		//SetCharacterAffiliatedFaction(character);
-		//SetCharacterSkill(character);
-		SetCharacterWaypoint(character);
+		group.AddAIEntityToGroup(entity, 0);
+		SetCharacterSkill(character);
+		SetGroupAffiliatedFaction(group);
+		SetGroupWaypoint(group);
 		
-		return character;
+		return group;
 	}
-	
-	protected void SetCharacterWaypoint(SCR_ChimeraCharacter character)
-	{
-		AIControlComponent aiControlComponent = AIControlComponent.Cast(character.FindComponent(AIControlComponent));
-		AIAgent aiAgent = aiControlComponent.GetControlAIAgent();
 
+	protected void SetGroupWaypoint(SCR_AIGroup group)
+	{
 		array<AIWaypoint> activeWaypoints = {};
-		aiAgent.GetWaypoints(activeWaypoints);
+		group.GetWaypoints(activeWaypoints);
 		foreach(AIWaypoint wpt : activeWaypoints)
-			aiAgent.RemoveWaypoint(wpt);
+			group.RemoveWaypoint(wpt);
 
-		aiAgent.AddWaypoint(aiWaypoint);
-		aiControlComponent.ActivateAI();
+		group.AddWaypoint(aiWaypoint);
 	}
 	
-	protected void SetCharacterAffiliatedFaction(SCR_ChimeraCharacter character)
+	protected void SetGroupAffiliatedFaction(SCR_AIGroup group)
 	{
-		FactionAffiliationComponent factionAffiliationComponent = FactionAffiliationComponent.Cast(character.FindComponent(FactionAffiliationComponent));
-		factionAffiliationComponent.SetAffiliatedFactionByKey(hostileAffiliatedFaction);
+		group.SetFaction(hostileAffiliatedFaction);
 	}
 	
 	protected void SetCharacterSkill(SCR_ChimeraCharacter character)
 	{
-		SCR_AICombatComponent aiCombatComponent = SCR_AICombatComponent.Cast(character.FindComponent(SCR_AICombatComponent));
-		aiCombatComponent.SetAISkill(GetHostileSkill());
+		Managed managed = character.FindComponent(SCR_AICombatComponent);		
+		SCR_AICombatComponent component = SCR_AICombatComponent.Cast(managed);
+		if(!component)
+		{
+			Print("SCR_AICombatComponent not found", LogLevel.ERROR);
+			return;
+		}
+		
+		component.SetAISkill(EAISkill.ROOKIE);
 	}
 	
 	protected void OnWaveStart()
@@ -208,7 +233,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	
 	protected int GetEnemyAmount()
 	{
-		return 10;//playerManager.GetPlayerCount();
+		return 50;//playerManager.GetPlayerCount();
 	}
 	
 	protected EAISkill GetHostileSkill()
@@ -223,18 +248,18 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	{
 		if (varName == "hostileAffiliatedFaction")
 		{
-			FactionManager factionManager = GetGame().GetFactionManager();
-			if (factionManager)
+			FactionManager manager = GetGame().GetFactionManager();
+			if (manager)
 			{
 				ref array<ref ParamEnum> factionEnums = new array<ref ParamEnum>();
 				factionEnums.Insert(new ParamEnum("Disabled", "-1"));
 
 				Faction faction;
 				string name;
-				int factionCount = factionManager.GetFactionsCount();
+				int factionCount = manager.GetFactionsCount();
 				for (int i = 0; i < factionCount; i++)
 				{
-					faction = factionManager.GetFactionByIndex(i);
+					faction = manager.GetFactionByIndex(i);
 					name = faction.GetFactionKey();
 					factionEnums.Insert(new ParamEnum(name, i.ToString()));
 				}
