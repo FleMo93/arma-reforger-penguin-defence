@@ -19,6 +19,7 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 	protected ref ScriptInvoker Event_OnWaveEnd = new ScriptInvoker();
 	
 	protected vector defenceZoneCenter;
+	protected int currentWave = 0;
 	
 	ScriptInvoker GetOnDefenceZoneChanged()
 	{
@@ -37,6 +38,11 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 		return Event_OnWaveEnd;
 	}
 	
+	int GetCurrentWave()
+	{
+		return currentWave;
+	}
+	
 	override event void OnWorldPostProcess(World world)
 	{
 		super.OnWorldPostProcess(world);
@@ -49,6 +55,9 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 		vector defencePointTransform[4];
 		defencePoint.GetWorldTransform(defencePointTransform);
 		defenceZoneCenter = defencePointTransform[3];
+		
+		SCR_DefenceEnemySpawnerComponent defenceEnemySpawnerComponent = SCR_DefenceEnemySpawnerComponent.Cast(FindComponent(SCR_DefenceEnemySpawnerComponent));
+		defenceEnemySpawnerComponent.GetOnAllGroupsKilled().Insert(OnWavePrepare);
 	};
 	
 	override void OnGameStart()
@@ -61,17 +70,18 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 	{
 		Event_OnDefenceZoneChanged.Invoke(defenceZoneCenter, gameAreaRadius, defenceRadius);
 		OnWavePrepare();
-		GetGame().GetCallqueue().CallLater(OnWaveStart, timeBetweenWaves);
 	}
 
 	protected void OnWavePrepare()
 	{
-		Event_OnWavePrepare.Invoke();
+		currentWave += 1;
+		Event_OnWavePrepare.Invoke(currentWave);
+		GetGame().GetCallqueue().CallLater(OnWaveStart, timeBetweenWaves);
 	}
 
 	protected void OnWaveStart()
 	{
-		Event_OnWaveStart.Invoke();
+		Event_OnWaveStart.Invoke(currentWave);
 	}
 	
 	void OnEnemyEnteredTrigger()

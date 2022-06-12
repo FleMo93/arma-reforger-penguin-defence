@@ -1,0 +1,13 @@
+SCR_PlayerController : "{6E2BB64764E3BE9B}Prefabs/Characters/Core/DefaultPlayerController.et" {
+ ID "1A9BA6BEFA06E3B1"
+ components {
+  SCR_HUDManagerComponent "{2FDC275D9EBCDB8B}" {
+   InfoDisplays {
+    SCR_DefenceStateGUILayout "{5996EEEA822B0177}" {
+     m_LayoutPath "{BE4A7B50D95D5645}GUI/DefenceStateGUILayout.layout"
+     m_eLayer HIGH
+    }
+   }
+  }
+ }
+}

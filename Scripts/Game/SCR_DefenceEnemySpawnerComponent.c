@@ -49,6 +49,14 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	protected AIWaypoint aiWaypoint;
 	protected ref array<vector> spawnPoints = {};
 	protected ref Resource groupWrapperResource;
+	protected ref array<SCR_AIGroup> activeGroups = {};
+	protected int killedGroupsInCurrentWave = 0;
+	protected ref ScriptInvoker onAllGroupsKilled = new ScriptInvoker();
+	
+	ScriptInvoker GetOnAllGroupsKilled()
+	{
+		return onAllGroupsKilled;
+	}
 
 	override event void OnWorldPostProcess(World world)
 	{
@@ -177,11 +185,27 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 			return;
 		}
 		
-		component.SetAISkill(EAISkill.ROOKIE);
+		component.SetAISkill(GetHostileSkill());
+	}
+	
+	protected void OnGroupEmpty()
+	{
+		killedGroupsInCurrentWave++;
+		if(killedGroupsInCurrentWave < activeGroups.Count())
+			return;
+		
+		for(int i = 0; i < activeGroups.Count(); i++)
+		{
+			SCR_AIGroup group = activeGroups[i];
+			delete group;
+		}
+		activeGroups.Clear();
+		onAllGroupsKilled.Invoke();
 	}
 	
 	protected void OnWaveStart()
 	{
+		killedGroupsInCurrentWave = 0;
 		array<ref SCR_WaveType> waveTypes = {};
 		_waveTypesConfig.GetWaveTypes(waveTypes);
 		int waveTypeIndex = Math.Floor(randomGenerator.RandFloat01() * (waveTypes.Count() - 1));
@@ -193,7 +217,9 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		{
 			int hostileCharacterIndex = Math.Floor(randomGenerator.RandFloat01() * (hostileCharacters.Count() - 1));
 			SCR_HostileCharacter hostileCharacter = hostileCharacters[hostileCharacterIndex];
-			SpawnHostileCharacterAtRandomLocation(hostileCharacter);
+			SCR_AIGroup group = SpawnHostileCharacterAtRandomLocation(hostileCharacter);
+			activeGroups.Insert(group);
+			group.GetOnEmpty().Insert(OnGroupEmpty);
 		}
 	}
 	
@@ -233,12 +259,14 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	
 	protected int GetEnemyAmount()
 	{
-		return 50;//playerManager.GetPlayerCount();
+		//playerManager.GetPlayerCount();
+		//gameMode.GetCurrentWave();
+		return 2;
 	}
 	
 	protected EAISkill GetHostileSkill()
 	{
-		return EAISkill.EXPERT;
+		return EAISkill.ROOKIE;
 	}
 	
 	
