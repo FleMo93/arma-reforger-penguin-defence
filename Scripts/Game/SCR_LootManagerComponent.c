@@ -168,7 +168,8 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 	protected ref array<ref SCR_ArsenalItem> items  = {};
 	private World _world;
 	private ArmaReforgerScripted game;
-	protected ref array<IEntity> spawnedEntities = {};
+	protected ref array<GenericEntity> spawnedEntities = {};
+	protected ref array<GenericEntity> ownedItems = {};
 	private ref RandomGenerator randomGenerator;
 	protected vector _center;
 	private SCR_DefenceGameMode gameMode;
@@ -233,7 +234,7 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 	}
 	
 
-	protected void SpawnLootAt(vector position, array<IEntity> newEntities)
+	protected void SpawnLootAt(vector position, array<GenericEntity> newEntities)
 	{
 		EntitySpawnParams spawnParams = EntitySpawnParams();
 		spawnParams.TransformMode = ETransformMode.WORLD;
@@ -274,6 +275,13 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 		{
 			Resource itemResource = lootItem.GetResource();		
 			IEntity entity = game.SpawnEntityPrefab(itemResource, _world, spawnParams);
+			GenericEntity gEntity = GenericEntity.Cast(entity);
+			if(!gEntity)
+			{
+				Print(string.Format("Could not cast entity %1", lootItem.GetResourceName()), LogLevel.ERROR);
+				delete entity;
+				continue;
+			}
 			
 			//leads to strange behaviour, like weapons flying around when stucking in furniture or walls
 			//Physics physics = entity.GetPhysics();
@@ -283,23 +291,52 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 				//physics = Physics.CreateDynamic(entity, 1, -1);
 			//}
 			
-			newEntities.Insert(entity);
+			newEntities.Insert(gEntity);
 		}
+	}
+	
+	protected void CleanUpLoot()
+	{
+		array<GenericEntity> newOwnedItems = {};
+		foreach (GenericEntity lootItem : ownedItems)
+		{
+			if(!lootItem)
+				continue;
+
+			IEntity parent = lootItem.GetParent();
+			if(!parent)
+				delete lootItem;
+			else
+				newOwnedItems.Insert(lootItem);
+		}
+
+		foreach (GenericEntity lootItem : spawnedEntities)
+		{
+			if(!lootItem)
+				continue;
+			IEntity parent = lootItem.GetParent();
+			if(!parent)
+				delete lootItem;
+			else
+				newOwnedItems.Insert(lootItem);
+		}
+
+		ownedItems = newOwnedItems;
+		spawnedEntities = {};
 	}
 	
 	protected void SpawnLoot()
 	{
+		CleanUpLoot();
+		
 		foreach(LootBuilding lootBuilding : lootBuildings)
 		{
 			foreach(vector spawnPoint : lootBuilding.spawnPoints)
 			{
 				if(randomGenerator.RandFloat01() > chanceOfSpawnPerPoint)
 					continue;
-				
-				array<IEntity> newEntities = {};
-				SpawnLootAt(spawnPoint, newEntities);
-				foreach(IEntity newEntity : newEntities)
-					spawnedEntities.Insert(newEntity);
+
+				SpawnLootAt(spawnPoint, spawnedEntities);
 			}
 		}
 	}
