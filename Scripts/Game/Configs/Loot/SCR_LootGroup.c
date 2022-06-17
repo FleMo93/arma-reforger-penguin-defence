@@ -45,9 +45,9 @@ class SCR_LootGroup
 			items.Insert(lootItem);
 	}
 	
-	SCR_LootItem GetRandomLootItemByWeight(RandomGenerator randomGenerator)
+	SCR_LootItem GetRandomLootItemByWeight()
 	{
-		float pickedWeight = randomGenerator.RandFloat01() * totalWeight;
+		float pickedWeight = Math.RandomInt(0, totalWeight + 1);
 		int currentWeight = 0;
 		
 		foreach(SCR_LootItem item : lootItems)
@@ -60,9 +60,9 @@ class SCR_LootGroup
 		return null;
 	}
 	
-	SCR_LootItem GetRandomLootItem(RandomGenerator randomGenerator)
+	SCR_LootItem GetRandomLootItem()
 	{
-		float pickedWeight = randomGenerator.RandFloat01() * lootItems.Count();
+		float pickedWeight = Math.RandomInt(0, lootItems.Count());
 		int currentWeight = 0;
 		
 		foreach(SCR_LootItem item : lootItems)

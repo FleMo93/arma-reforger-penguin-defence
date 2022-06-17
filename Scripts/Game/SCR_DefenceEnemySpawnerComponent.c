@@ -20,7 +20,6 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	private vector _center;
 	private float _gameAreaRadius;
 	private float _defenceRadius;
-	private ref RandomGenerator randomGenerator;
 	private ref Faction hostileAffiliatedFaction;
 	
 	[Attribute("", UIWidgets.ResourceNamePicker, "", "et")]
@@ -63,9 +62,6 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		super.OnWorldPostProcess(world);
 		if(!Replication.IsServer())
 			return;
-
-		randomGenerator = new RandomGenerator();
-		randomGenerator.SetSeed(Math.RandomInt(0, 100));
 		
 		if(waveTypesConfig)
 		{
@@ -208,15 +204,14 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		killedGroupsInCurrentWave = 0;
 		array<ref SCR_WaveType> waveTypes = {};
 		_waveTypesConfig.GetWaveTypes(waveTypes);
-		int waveTypeIndex = Math.Floor(randomGenerator.RandFloat01() * (waveTypes.Count() - 1));
+		int waveTypeIndex = Math.RandomInt(0, waveTypes.Count());
 		SCR_WaveType waveType = waveTypes[waveTypeIndex];
 		array<ref SCR_HostileCharacter> hostileCharacters = {};
 		_hostileCharacterConfig.GetHostileCharactersByRelatedWaveName(hostileCharacters, waveType.GetName());
 		
 		for(int i = 0; i < GetEnemyAmount(); i++)
 		{
-			int hostileCharacterIndex = Math.Floor(randomGenerator.RandFloat01() * (hostileCharacters.Count() - 1));
-			SCR_HostileCharacter hostileCharacter = hostileCharacters[hostileCharacterIndex];
+			SCR_HostileCharacter hostileCharacter = hostileCharacters[Math.RandomInt(0, hostileCharacters.Count())];
 			SCR_AIGroup group = SpawnHostileCharacterAtRandomLocation(hostileCharacter);
 			activeGroups.Insert(group);
 			group.GetOnEmpty().Insert(OnGroupEmpty);
@@ -247,14 +242,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		
 	protected vector GetRandomSpawnPoint()
 	{
-		return spawnPoints[Math.Floor(randomGenerator.RandFloat01() * (spawnPoints.Count() - 1))];
-		float degree = randomGenerator.RandFloat01() * 360;
-		float radians = degree * (Math.PI / 180);
-		vector direction = Vector(Math.Cos(radians), 0, Math.Sin(radians));
-		vector spawnPoint = _center + direction * (_gameAreaRadius + spawnDistanceOffset);
-		spawnPoint[1] = _world.GetSurfaceY(spawnPoint[0], spawnPoint[2]);
-		
-		return spawnPoint;
+		return spawnPoints[Math.RandomInt(0, spawnPoints.Count())];
 	}
 	
 	protected int GetEnemyAmount()

@@ -170,7 +170,6 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 	private ArmaReforgerScripted game;
 	protected ref array<GenericEntity> spawnedEntities = {};
 	protected ref array<GenericEntity> ownedItems = {};
-	private ref RandomGenerator randomGenerator;
 	protected vector _center;
 	private SCR_DefenceGameMode gameMode;
 	private float gameAreaRadius;
@@ -190,9 +189,6 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 
 		_world = world;
 		game = GetGame();
-		
-		randomGenerator = new RandomGenerator();
-		randomGenerator.SetSeed(Math.RandomInt(0, 100));
 		
 		gameMode = SCR_DefenceGameMode.Cast(GetGameMode());
 		if(!gameMode) Print("Could not parse game mode", LogLevel.ERROR);
@@ -246,13 +242,13 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 			Vector(position[0], position[1] /*+ _spawnHeightOffset*/, position[2])
 		};
 				
-		_lootListConfig.GetRandomLootGroupByWeight(randomGenerator);
+		_lootListConfig.GetRandomLootGroupByWeight();
 
 		SCR_LootGroup lootGroup;
 		if (ignoreItemListWeights)
-			lootGroup = _lootListConfig.GetRandomLootGroup(randomGenerator);
+			lootGroup = _lootListConfig.GetRandomLootGroup();
 		else
-			lootGroup = _lootListConfig.GetRandomLootGroupByWeight(randomGenerator);
+			lootGroup = _lootListConfig.GetRandomLootGroupByWeight();
 
 		if(!lootGroup)
 		{
@@ -262,9 +258,9 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 
 		SCR_LootItem lootItem;
 		if(ignoreItemListWeights)
-			lootItem = lootGroup.GetRandomLootItem(randomGenerator);
+			lootItem = lootGroup.GetRandomLootItem();
 		else
-			lootItem = lootGroup.GetRandomLootItemByWeight(randomGenerator);
+			lootItem = lootGroup.GetRandomLootItemByWeight();
 
 		if(!lootItem)
 		{
@@ -334,7 +330,7 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 		{
 			foreach(vector spawnPoint : lootBuilding.spawnPoints)
 			{
-				if(randomGenerator.RandFloat01() > chanceOfSpawnPerPoint)
+				if(Math.RandomFloat01() > chanceOfSpawnPerPoint)
 					continue;
 
 				SpawnLootAt(spawnPoint, spawnedEntities);
