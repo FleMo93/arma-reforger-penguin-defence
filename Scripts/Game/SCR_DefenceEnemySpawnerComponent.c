@@ -22,6 +22,9 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	private float _defenceRadius;
 	private ref Faction hostileAffiliatedFaction;
 	
+	[Attribute(params: "conf", category: "Loot Points")]
+	protected ResourceName waveDifficultyOptionsConfig;
+	
 	[Attribute("", UIWidgets.ResourceNamePicker, "", "et")]
 	protected ResourceName groupWrapperResourceName;
 	
@@ -43,6 +46,13 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	[Attribute("360", uiwidget: UIWidgets.EditComboBox)]
 	protected int numberOfSpawnPoints;
 	
+	[Attribute("1", params: "0.1, 10, 1", uiwidget: UIWidgets.Slider, desc: "")]
+	protected float baseHostileMultiplier;
+
+	[Attribute("1", params: "0, 2, 0.5", uiwidget: UIWidgets.Slider, desc: "")]
+	protected float extraHostileMultiplierPerPlayer;
+	
+	protected ref SCR_WaveDifficultyOptionsConfig _waveDifficultyOptionsConfig;
 	protected ref SCR_WaveTypes _waveTypesConfig;
 	protected ref SCR_HostileCharacters _hostileCharacterConfig;
 	protected AIWaypoint aiWaypoint;
@@ -89,6 +99,11 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		
 		_world = world;
 		playerManager = game.GetPlayerManager();
+
+		if(waveDifficultyOptionsConfig)
+			_waveDifficultyOptionsConfig = SCR_WaveDifficultyOptionsConfig.Cast(BaseContainerTools.CreateInstanceFromContainer(Resource.Load(waveDifficultyOptionsConfig).GetResource().ToBaseContainer()));
+		else
+			Print("Could not load wave difficulty options config");
 		
 		gameMode.GetOnDefenceZoneChanged().Insert(SetDefenceZone);
 		gameMode.GetOnWaveStart().Insert(OnWaveStart);
@@ -116,7 +131,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		Print(string.Format("%1 spawn points found", spawnPoints.Count()), LogLevel.NORMAL);
 	}
 	
-	protected SCR_AIGroup SpawnHostileCharacterAtRandomLocation(SCR_HostileCharacter hostileCharacter)
+	protected SCR_AIGroup SpawnHostileCharacterAtRandomLocation(SCR_HostileCharacter hostileCharacter, EAISkill skill)
 	{
 		Resource hostileCharacterResource = hostileCharacter.GetResource();	
 		EntitySpawnParams spawnParams = EntitySpawnParams();
@@ -136,8 +151,6 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 			entityGroup.GetParent().RemoveChild(entityGroup);
 			return null;
 		}
-		
-		
 
 		IEntity entity = game.SpawnEntityPrefab(hostileCharacter.GetResource(), _world, spawnParams);
 		SCR_ChimeraCharacter character = SCR_ChimeraCharacter.Cast(entity);
@@ -149,7 +162,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		}
 		
 		group.AddAIEntityToGroup(entity, 0);
-		SetCharacterSkill(character);
+		SetCharacterSkill(character, skill);
 		SetGroupAffiliatedFaction(group);
 		SetGroupWaypoint(group);
 		
@@ -171,7 +184,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		group.SetFaction(hostileAffiliatedFaction);
 	}
 	
-	protected void SetCharacterSkill(SCR_ChimeraCharacter character)
+	protected void SetCharacterSkill(SCR_ChimeraCharacter character, EAISkill skill)
 	{
 		Managed managed = character.FindComponent(SCR_AICombatComponent);		
 		SCR_AICombatComponent component = SCR_AICombatComponent.Cast(managed);
@@ -181,7 +194,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 			return;
 		}
 		
-		component.SetAISkill(GetHostileSkill());
+		component.SetAISkill(skill);
 	}
 	
 	protected void OnGroupEmpty()
@@ -208,11 +221,12 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		SCR_WaveType waveType = waveTypes[waveTypeIndex];
 		array<ref SCR_HostileCharacter> hostileCharacters = {};
 		_hostileCharacterConfig.GetHostileCharactersByRelatedWaveName(hostileCharacters, waveType.GetName());
+		EAISkill skill = GetHostileSkill();
 		
 		for(int i = 0; i < GetEnemyAmount(); i++)
 		{
 			SCR_HostileCharacter hostileCharacter = hostileCharacters[Math.RandomInt(0, hostileCharacters.Count())];
-			SCR_AIGroup group = SpawnHostileCharacterAtRandomLocation(hostileCharacter);
+			SCR_AIGroup group = SpawnHostileCharacterAtRandomLocation(hostileCharacter, skill);
 			activeGroups.Insert(group);
 			group.GetOnEmpty().Insert(OnGroupEmpty);
 		}
@@ -247,14 +261,16 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	
 	protected int GetEnemyAmount()
 	{
-		//playerManager.GetPlayerCount();
-		//gameMode.GetCurrentWave();
-		return 2;
+		int extraPlayerCountMultipier = playerManager.GetPlayerCount() - 1;
+		float playerMultiplier = 1 + (extraPlayerCountMultipier * extraHostileMultiplierPerPlayer);
+		int numberOfHostiles = Math.Floor(gameMode.GetCurrentWave() * playerMultiplier * baseHostileMultiplier);
+		return Math.Max(numberOfHostiles, 1);
 	}
 	
 	protected EAISkill GetHostileSkill()
 	{
-		return EAISkill.ROOKIE;
+		SCR_WaveDifficultyOption option = _waveDifficultyOptionsConfig.GetWaveDifficultyOptionForWave(gameMode.GetCurrentWave());
+		return option.GetAISkill();
 	}
 	
 	

@@ -20,6 +20,9 @@ SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Manag
 }
 SCR_DefenceGameMode SCR_DefenceGameMode : "{5ECEE9197618A3B3}Prefabs/SCR_DefenceGameMode.et" {
  components {
+  SCR_DefenceEnemySpawnerComponent "{598B0937AE3858AB}" {
+   waveDifficultyOptionsConfig "{9E88B982CD8A826B}Configs/WaveDifficultyOptions.conf"
+  }
   SCR_DefenceRespawnTimerComponent "{599F232E84797C26}" {
    m_fRespawnTime 10
   }

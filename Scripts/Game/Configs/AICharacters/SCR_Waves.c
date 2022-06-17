@@ -11,4 +11,15 @@ class SCR_WaveTypes
 		foreach(SCR_WaveType waveType : waveTypes)
 			wavesArray.Insert(waveType);
 	}
+	
+	void GetWaveTypesBySpecial(array<ref SCR_WaveType> wavesArray, bool isSpecial)
+	{
+		if(!wavesArray) return;
+		
+		foreach(SCR_WaveType waveType : waveTypes)
+		{
+			if(waveType.GetIsSepcialWave() == isSpecial)
+				wavesArray.Insert(waveType);
+		}
+	}
 }
