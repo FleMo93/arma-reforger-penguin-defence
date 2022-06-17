@@ -20,49 +20,10 @@ SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Manag
 }
 SCR_DefenceGameMode SCR_DefenceGameMode : "{5ECEE9197618A3B3}Prefabs/SCR_DefenceGameMode.et" {
  components {
-  SCR_CallsignManagerComponent "{5988A0A2CBF7C746}" {
-  }
-  SCR_DefenceEnemySpawnerComponent "{598B0937AE3858AB}" {
-   spawnDistanceOffset 100
-  }
-  SCR_DefenceLootManagerComponent "{5988A0ACDC7D4642}" {
-   lootListConfig "{C1E4AB4A28E79AF8}Configs/Loot.conf"
-   ignoreItemListWeights 1
+  SCR_DefenceRespawnTimerComponent "{599F232E84797C26}" {
+   m_fRespawnTime 10
   }
   SCR_DefenceSpawnerComponent "{5988A0A258661082}" {
-   m_iForcedFaction 0
-   respawnTriggerEntityName "DefencePoint"
-  }
-  SCR_DestructionManagerComponent "{5988A0A24DD2D1A6}" {
-  }
-  SCR_GameOverScreenManagerComponent "{5988A0A247A83518}" {
-   m_GameOverScreenConfig SCR_GameOverScreenConfig "{5988A0A37C852741}" {
-   }
-  }
-  SCR_GroupsManagerComponent "{5988A0A2BD3EE5CB}" {
-   m_sDefaultGroupPrefab "{8B4D49A9F324E7D5}Prefabs/Groups/PlayableGroup.et"
-  }
-  SCR_HintManagerComponent "{5988A0A2B3C4E52E}" {
-  }
-  SCR_NametagConfigComponent "{5988A0A2B6473CB2}" {
-  }
-  SCR_NotificationSenderComponent "{5988A0A2AD8AF29A}" {
-  }
-  SCR_PlayerProfileManagerComponent "{5988A0A2A378D744}" {
-  }
-  SCR_PlayersRestrictionZoneManagerComponent "{5988A0A292241885}" {
-  }
-  SCR_PossessingManagerComponent "{5988A0A2884FD855}" {
-  }
-  SCR_RespawnSystemComponent "{5988A0A2F94D4327}" {
-  }
-  SCR_SaveLoadComponent "{5988A0A2FFBF0212}" {
-  }
-  SCR_VotingManagerComponent "{5988A0A2F2D65867}" {
-  }
-  RplComponent "{5988A0A2E8945F9F}" {
-   "Rpl State Override" Static
-   Streamable Disabled
   }
  }
  coords 0 0 0

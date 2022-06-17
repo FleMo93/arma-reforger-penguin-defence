@@ -1,8 +1,9 @@
 class SCR_DefenceStateGUILayout : SCR_InfoDisplay
 {
-	private Widget defenceStateGUI;
-	private TextWidget textWidgetWaveNumber
+	private TextWidget textWidgetWaveNumber;
+	private TextWidget textWidgetRespawnTickets;
 	private SCR_DefenceGameMode gameMode;
+	private SCR_DefenceSpawnerComponent spawnerComponent;
 	private bool uiOutdated = false;
 	
     override void OnStartDraw(IEntity owner)
@@ -11,11 +12,22 @@ class SCR_DefenceStateGUILayout : SCR_InfoDisplay
 
         if (!textWidgetWaveNumber)
 		{
-			Widget widgetWaveNumber = m_wRoot.FindWidget("Scale.Overlay.WaveNumber");
-			textWidgetWaveNumber = TextWidget.Cast(widgetWaveNumber);
+			Widget widget = m_wRoot.FindWidget("Scale.Overlay.WaveNumber");
+			textWidgetWaveNumber = TextWidget.Cast(widget);
 			if(!textWidgetWaveNumber)
 			{
 				Print("Could not find textWidgetWaveNumber", LogLevel.ERROR);
+				return;
+			}
+		}
+		
+		if(!textWidgetRespawnTickets)
+		{
+			Widget widget = m_wRoot.FindWidget("Scale.Overlay.RespawnTickets");
+			textWidgetRespawnTickets = TextWidget.Cast(widget);
+			if(!textWidgetRespawnTickets)
+			{
+				Print("Could not find textWidgetRespawnTickets", LogLevel.ERROR);
 				return;
 			}
 		}
@@ -29,7 +41,18 @@ class SCR_DefenceStateGUILayout : SCR_InfoDisplay
 				Print("Could not get GameMode", LogLevel.ERROR);
 				return;
 			}
-			gameMode.GetOnWavePrepare().Insert(OnWavePrepare);
+			gameMode.GetOnWavePrepare().Insert(SetUIOutdated);
+		}
+		
+		if(!spawnerComponent && gameMode)
+		{
+			spawnerComponent = SCR_DefenceSpawnerComponent.Cast(gameMode.FindComponent(SCR_DefenceSpawnerComponent));
+			if(!spawnerComponent)
+			{
+				Print("Could not get RespawnManager", LogLevel.ERROR);
+				return;
+			}
+			spawnerComponent.GetOnRespawnTicketsChanged().Insert(SetUIOutdated);
 		}
 
 		uiOutdated = true;
@@ -37,13 +60,14 @@ class SCR_DefenceStateGUILayout : SCR_InfoDisplay
 	
 	override void OnStopDraw(IEntity owner)
 	{
-		if(!gameMode)
-			return;
-
-		gameMode.GetOnWavePrepare().Remove(OnWavePrepare);
+		if(gameMode)
+			gameMode.GetOnWavePrepare().Remove(SetUIOutdated);
+		
+		if(spawnerComponent)
+			spawnerComponent.GetOnRespawnTicketsChanged().Remove(SetUIOutdated);
 	}
 	
-	private void OnWavePrepare()
+	private void SetUIOutdated()
 	{
 		uiOutdated = true;
 	}
@@ -52,6 +76,9 @@ class SCR_DefenceStateGUILayout : SCR_InfoDisplay
 	{
 		int waveNumber = gameMode.GetCurrentWave();
 		textWidgetWaveNumber.SetText("Wave: " + waveNumber.ToString());
+		
+		int respawnTickets = spawnerComponent.GetRespawnTickets();
+		textWidgetRespawnTickets.SetText("Tickets: " + respawnTickets.ToString());
 
 		uiOutdated = false;
 	}

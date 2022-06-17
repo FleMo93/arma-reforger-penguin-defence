@@ -8,10 +8,10 @@ FrameWidgetClass {
     OffsetLeft 0
     PositionY 0
     OffsetTop 0
-    SizeX 120
-    OffsetRight -120
-    SizeY 35
-    OffsetBottom -35
+    SizeX 125
+    OffsetRight -125
+    SizeY 70
+    OffsetBottom -70
    }
    {
     OverlayWidgetClass "{5996EEDA655CA5A4}" {
@@ -32,9 +32,18 @@ FrameWidgetClass {
       TextWidgetClass "{5996EEDA9D1AC903}" {
        Name "WaveNumber"
        Slot OverlayWidgetSlot "{5996EEDA9D1AC916}" {
-        Padding 5 0 5 0
+        HorizontalAlign 0
+        Padding 5 -30 5 0
        }
        Text "Wave: 999"
+      }
+      TextWidgetClass "{5998D13D10CB3EF7}" {
+       Name "RespawnTickets"
+       Slot OverlayWidgetSlot "{5996EEDA9D1AC916}" {
+        HorizontalAlign 0
+        Padding 5 30 5 0
+       }
+       Text "Tickets: 999"
       }
      }
     }

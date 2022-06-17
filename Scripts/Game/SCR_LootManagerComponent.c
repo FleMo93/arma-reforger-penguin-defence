@@ -178,6 +178,7 @@ class SCR_DefenceLootManagerComponent : SCR_BaseGameModeComponent
 	
 	override void OnPostInit(IEntity owner)
 	{
+		super.OnPostInit(owner);
 		SetEventMask(owner, EntityEvent.INIT);
 	}
 	

@@ -17,7 +17,29 @@ class SCR_DefenceSpawnerComponent : SCR_RespawnHandlerComponent
 	[Attribute("", uiwidget: UIWidgets.EditComboBox, category: "Respawn Points", desc: "Trigger where players can spawn in.")]
 	protected string respawnTriggerEntityName;
 
+	[Attribute("20", uiwidget: UIWidgets.Slider, params: "0, 999, 1", category: "Respawn", desc: "Tickets for respawning.")]
+	protected int respawnTickets;
+
+	protected SCR_DefenceGameMode gameMode;
 	protected BaseGameTriggerEntity defendPointTrigger;
+	protected ref ScriptInvoker Event_OnRespawnTicketsChanged = new ScriptInvoker();
+	protected SCR_BaseScoringSystemComponent scoringSystemComponent;
+	
+	/*!
+		Batch of players that are supposed to spawn.
+		Used to prevent modifying collection we're iterating through.
+	*/
+	private ref array<int> m_aSpawningBatch = {};
+	
+	int GetRespawnTickets()
+	{
+		return respawnTickets;
+	}
+
+	ScriptInvoker GetOnRespawnTicketsChanged()
+	{
+		return Event_OnRespawnTicketsChanged;
+	}
 	
 	override void OnWorldPostProcess(World world)
 	{
@@ -28,13 +50,21 @@ class SCR_DefenceSpawnerComponent : SCR_RespawnHandlerComponent
 			Print("Respawn trigger entity not found", LogLevel.ERROR);
 			return;
 		}
+		
+		gameMode = SCR_DefenceGameMode.Cast(GetGameMode());
+		if(!gameMode)
+		{
+			Print("Cant cast game mode", LogLevel.ERROR);
+			return;
+		}
+		
+		scoringSystemComponent = GetGameMode().GetScoringSystemComponent();
+		if(!scoringSystemComponent)
+		{
+			Print("Cant get scoring system component.", LogLevel.ERROR);
+			return;
+		}
 	}
-	
-	/*!
-		Batch of players that are supposed to spawn.
-		Used to prevent modifying collection we're iterating through.
-	*/
-	private ref array<int> m_aSpawningBatch = {};
 
 	/*!
 		When player is enqueued, randomize their loadout.
@@ -62,7 +92,7 @@ class SCR_DefenceSpawnerComponent : SCR_RespawnHandlerComponent
 	{
 		super.OnPlayerSpawned(playerId, controlledEntity);
 
-		if (!m_pGameMode.IsMaster())
+		if (!gameMode.IsMaster())
 			return;
 
 		RandomGenerator randomGenerator = new RandomGenerator();
@@ -75,6 +105,14 @@ class SCR_DefenceSpawnerComponent : SCR_RespawnHandlerComponent
 		if(!gameEntity)
 			return;
 		gameEntity.Teleport(entityWorldTransform);
+		
+		SCR_ScoreInfo scoreInfo = scoringSystemComponent.GetPlayerScoreInfo(playerId);
+		bool wasAlreadyDead = scoreInfo.m_iDeaths > 0 || scoreInfo.m_iSuicides > 0;
+		if(gameMode.GetWaveState() == SCR_EWaveState.INPROGRESS && wasAlreadyDead)
+		{
+			respawnTickets--;
+			Event_OnRespawnTicketsChanged.Invoke(respawnTickets);
+		}
 	}
 	
 	protected vector GetSpawnPointInTrigger(RandomGenerator randomGenerator)
@@ -96,7 +134,7 @@ class SCR_DefenceSpawnerComponent : SCR_RespawnHandlerComponent
 	override void EOnFrame(IEntity owner, float timeSlice)
 	{
 		// Authority only
-		if (!m_pGameMode.IsMaster())
+		if (!gameMode.IsMaster())
 			return;
 
 		// Clear batch
@@ -105,7 +143,7 @@ class SCR_DefenceSpawnerComponent : SCR_RespawnHandlerComponent
 		// Find players eligible for respawn
 		foreach (int playerId : m_sEnqueuedPlayers)
 		{
-			if (m_pGameMode.CanPlayerRespawn(playerId))
+			if (gameMode.CanPlayerRespawn(playerId))
 				m_aSpawningBatch.Insert(playerId);
 		}
 

@@ -7,15 +7,19 @@ SCR_DefenceGameMode {
    groupWrapperResourceName "{000CD338713F2B5A}Prefabs/AI/Groups/Group_Base.et"
    waveTypesConfig "{94B01EF4FABE9FA2}Configs/WaveTypes.conf"
    hostileCharactersConfig "{1FA3804372929692}Configs/HostileCharacters.conf"
+   spawnDistanceOffset 100
    waypointResourceName "{1B0E3436C30FA211}Prefabs/AI/Waypoints/AIWaypoint_Attack.et"
   }
   SCR_DefenceLootManagerComponent "{5988A0ACDC7D4642}" {
    lootListConfig "{C1E4AB4A28E79AF8}Configs/Loot.conf"
    ignoreItemListWeights 1
   }
+  SCR_DefenceRespawnTimerComponent "{599F232E84797C26}" {
+  }
   SCR_DefenceSpawnerComponent "{5988A0A258661082}" {
    m_iForcedFaction 0
    respawnTriggerEntityName "DefencePoint"
+   respawnTickets 2
   }
   SCR_DestructionManagerComponent "{5988A0A24DD2D1A6}" {
   }
@@ -41,6 +45,8 @@ SCR_DefenceGameMode {
   SCR_RespawnSystemComponent "{5988A0A2F94D4327}" {
   }
   SCR_SaveLoadComponent "{5988A0A2FFBF0212}" {
+  }
+  SCR_ScoringSystemComponent "{59A06A285D16D120}" {
   }
   SCR_VotingManagerComponent "{5988A0A2F2D65867}" {
   }
