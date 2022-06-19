@@ -1,0 +1,9 @@
+SCR_AIGroup : "{000CD338713F2B5A}Prefabs/AI/Groups/Group_Base.et" {
+ ID "0000000000000001"
+ components {
+  SCR_AIAttackRandomPlayerComponent "{59A6757602892C02}" {
+   m_waypointResourceName "{1B0E3436C30FA211}Prefabs/AI/Waypoints/AIWaypoint_Attack.et"
+  }
+ }
+ coords 0 0 0
+}

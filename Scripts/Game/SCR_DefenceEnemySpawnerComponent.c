@@ -164,19 +164,8 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		group.AddAIEntityToGroup(entity, 0);
 		SetCharacterSkill(character, skill);
 		SetGroupAffiliatedFaction(group);
-		SetGroupWaypoint(group);
 		
 		return group;
-	}
-
-	protected void SetGroupWaypoint(SCR_AIGroup group)
-	{
-		array<AIWaypoint> activeWaypoints = {};
-		group.GetWaypoints(activeWaypoints);
-		foreach(AIWaypoint wpt : activeWaypoints)
-			group.RemoveWaypoint(wpt);
-
-		group.AddWaypoint(aiWaypoint);
 	}
 	
 	protected void SetGroupAffiliatedFaction(SCR_AIGroup group)
