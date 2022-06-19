@@ -143,6 +143,8 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 		{
 			PlayerController pc = playerManager.GetPlayerController(playerId);
 			IEntity controlledEntity = playerManager.GetPlayerControlledEntity(playerId);
+			if(!controlledEntity)
+				continue;
 
 			SCR_CharacterControllerComponent characterControllerComponent = SCR_CharacterControllerComponent.Cast(controlledEntity.FindComponent(SCR_CharacterControllerComponent));
 			if(!characterControllerComponent)
