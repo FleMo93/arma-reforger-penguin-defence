@@ -9,7 +9,6 @@ SCR_DefenceGameMode {
    waveTypesConfig "{94B01EF4FABE9FA2}Configs/WaveTypes.conf"
    hostileCharactersConfig "{1FA3804372929692}Configs/HostileCharacters.conf"
    spawnDistanceOffset 100
-   waypointResourceName "{A0509D3C4DD4475E}Prefabs/AI/Waypoints/AIWaypoint_Follow.et"
   }
   SCR_DefenceLootManagerComponent "{5988A0ACDC7D4642}" {
    lootListConfig "{C1E4AB4A28E79AF8}Configs/Loot.conf"
@@ -59,6 +58,5 @@ SCR_DefenceGameMode {
  }
  coords 4760.901 163.144 7111.817
  Flags 0
- defenceRadius 5
  timeBetweenWaves 1000
 }
