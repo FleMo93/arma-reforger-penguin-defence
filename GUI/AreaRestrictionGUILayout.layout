@@ -1,0 +1,61 @@
+FrameWidgetClass {
+ Name "rootFrame"
+ {
+  ScaleWidgetClass "{59A90D97009E234D}" {
+   Name "Scale"
+   Slot FrameWidgetSlot "{59A90D97009E2373}" {
+    Anchor 0 0 1 0.5
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 0
+    OffsetRight 0
+    SizeY 172.8
+    OffsetBottom 0
+   }
+   {
+    OverlayWidgetClass "{59A90D9769230CAB}" {
+     Name "Overlay"
+     Slot AlignableSlot "{59A90D9769230CBD}" {
+     }
+     {
+      TextWidgetClass "{59A90D9761600AA6}" {
+       Name "Warning1"
+       Slot OverlayWidgetSlot "{59A90D9761600AB8}" {
+        Padding 0 0 0 0
+       }
+       Text "Warning: Leaving mission area!"
+       "Font Size" 36
+       FontProperties FontProperties "{59A90D96238E7283}" {
+        Bold 1
+       }
+      }
+      TextWidgetClass "{59A90D976246416C}" {
+       Name "Warning2"
+       Slot OverlayWidgetSlot "{59A90D9762464101}" {
+       }
+       Color 1 1 0 1
+       Text "Warning: Leaving mission area!"
+       "Font Size" 36
+       FontProperties FontProperties "{59A90D961E397081}" {
+        Bold 1
+       }
+      }
+      TextWidgetClass "{59A90D9765855AD7}" {
+       Name "Warning3"
+       Slot OverlayWidgetSlot "{59A90D9765855AEC}" {
+       }
+       Color 1 0 0 1
+       Text "Warning: Leaving mission area!"
+       "Font Size" 36
+       FontProperties FontProperties "{59A90D9610D84754}" {
+        Bold 1
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

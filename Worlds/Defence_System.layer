@@ -62,9 +62,6 @@ SCR_BaseTriggerEntity DefencePoint {
  PeriodicQueries 1
  UpdatePeriod 0.5
 }
-SCR_EntityWaypoint {
- coords 4780.667 164.836 7088.179
-}
 HitRegistrationManager HitRegManager1 : "{0EDA3D48791120DD}Prefabs/MP/HitRegManager.et" {
 }
 SCR_SpawnPoint : "{5A2220DD0C16958B}Prefabs/MP/Spawning/SpawnPoint_US.et" {

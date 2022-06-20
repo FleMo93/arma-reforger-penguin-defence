@@ -7,6 +7,10 @@ SCR_PlayerController : "{6E2BB64764E3BE9B}Prefabs/Characters/Core/DefaultPlayerC
      m_LayoutPath "{BE4A7B50D95D5645}GUI/DefenceStateGUILayout.layout"
      m_eLayer HIGH
     }
+    SCR_AreaRestrictionGUILayout "{59A90D96E273A3E4}" {
+     m_LayoutPath "{9FA3CB99946AFF39}GUI/AreaRestrictionGUILayout.layout"
+     m_eLayer HIGH
+    }
    }
   }
  }

@@ -16,10 +16,8 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 	static const int ENDREASON_DEFENDERWON = 1;
 	static const int ENDREASON_ATTACKERWON = 2;
 	
-	[Attribute("100", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: "")]
+	[Attribute("100", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: ""), RplProp(condition: RplCondition.None)]
 	protected float gameAreaRadius;
-	[Attribute("10", uiwidget: UIWidgets.EditBox, category: "Loot Points", desc: "")]
-	protected float defenceRadius;
 	[Attribute("60000", uiwidget: UIWidgets.EditBox, category: "Waves", desc: "")]
 	protected float timeBetweenWaves;
 
@@ -28,10 +26,13 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 	protected ref ScriptInvoker Event_OnWaveStart = new ScriptInvoker();
 	protected ref ScriptInvoker Event_OnWaveEnd = new ScriptInvoker();
 	
-	protected vector defenceZoneCenter;
 	protected SCR_DefenceEnemySpawnerComponent defenceEnemySpawnerComponent;
 	protected SCR_DefenceSpawnerComponent defenceSpawnerComponent;
 	protected SCR_EWaveState waveState = SCR_EWaveState.PREPARE;
+	protected SCR_BaseTriggerEntity playerRestrictionTrigger;
+	
+	[RplProp(condition: RplCondition.None)]
+	protected vector defenceZoneCenter;
 	
 	[RplProp(condition: RplCondition.None)]
 	protected int currentWave = 0;
@@ -60,6 +61,16 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 	int GetCurrentWave()
 	{
 		return currentWave;
+	}
+	
+	float GetGameAreaRadius()
+	{
+		return gameAreaRadius;
+	}
+	
+	vector GetGameAreaCenter()
+	{
+		return defenceZoneCenter;
 	}
 	
 	override event void OnWorldPostProcess(World world)
@@ -100,7 +111,7 @@ class SCR_DefenceGameMode : SCR_BaseGameMode
 
 	protected void OnDefenceZoneChanged()
 	{
-		Event_OnDefenceZoneChanged.Invoke(defenceZoneCenter, gameAreaRadius, defenceRadius);
+		Event_OnDefenceZoneChanged.Invoke(defenceZoneCenter, gameAreaRadius);
 		OnWavePrepare();
 	}
 

@@ -19,7 +19,6 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	private PlayerManager playerManager;
 	private vector _center;
 	private float _gameAreaRadius;
-	private float _defenceRadius;
 	private ref Faction hostileAffiliatedFaction;
 	
 	[Attribute(params: "conf", category: "Loot Points")]
@@ -39,10 +38,7 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 	
 	[Attribute("USSR", uiwidget: UIWidgets.EditComboBox)]
 	protected FactionKey hostileAffiliatedFactionKey;
-	
-	[Attribute("", UIWidgets.ResourceNamePicker, "", "et")]
-	protected ResourceName waypointResourceName;
-	
+
 	[Attribute("360", uiwidget: UIWidgets.EditComboBox)]
 	protected int numberOfSpawnPoints;
 	
@@ -107,26 +103,13 @@ class SCR_DefenceEnemySpawnerComponent : SCR_BaseGameModeComponent
 		
 		gameMode.GetOnDefenceZoneChanged().Insert(SetDefenceZone);
 		gameMode.GetOnWaveStart().Insert(OnWaveStart);
-		groupWrapperResource = Resource.Load(groupWrapperResourceName);
-		
-		if(waypointResourceName)
-		{
-			Resource resource = Resource.Load(waypointResourceName);
-			IEntity aiWaypointEntity = game.SpawnEntityPrefab(resource, world);
-			aiWaypoint = AIWaypoint.Cast(aiWaypointEntity);
-			aiWaypoint.SetCompletionType(EAIWaypointCompletionType.All);
-		}
-		else
-			Print("Missing waypoint resource name. May lead to error on start.", LogLevel.WARNING);		
+		groupWrapperResource = Resource.Load(groupWrapperResourceName);		
 	}
 	
-	protected void SetDefenceZone(vector center, float gameArearadius, float defenceRadius)
+	protected void SetDefenceZone(vector center, float gameArearadius)
 	{
 		_center = center;
 		_gameAreaRadius = gameArearadius;
-		_defenceRadius = defenceRadius;
-		aiWaypoint.SetCompletionRadius(Math.Max(0.5, defenceRadius - 0.5));
-		aiWaypoint.SetOrigin(_center);
 		PrepareSpawnPoints();
 		Print(string.Format("%1 spawn points found", spawnPoints.Count()), LogLevel.NORMAL);
 	}
